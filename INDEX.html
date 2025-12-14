@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>楽曲検索</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 15px;
+            background: #f5f5f5;
+        }
+
+        h1 {
+            font-size: 1.4rem;
+            text-align: center;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"] {
+            padding: 12px;
+            font-size: 1rem;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 12px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        button:nth-child(2) {
+            background: #007bff;
+            color: white;
+        }
+
+        button:nth-child(3) {
+            background: #007bff;
+            color: white;
+        }
+
+        /* ✅ サジェストボックス */
+        #suggestBox {
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            max-height: 150px;
+            overflow-y: auto;
+            display: none;
+            position: relative;
+            z-index: 10;
+        }
+
+        .suggest-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+        }
+
+        .suggest-item:hover {
+            background: #f0f0f0;
+        }
+
+        /* ✅ 結果ボックス */
+        #resultBox {
+            width: 100%;
+            height: 50vh;
+            border: 2px solid #333;
+            padding: 10px;
+            overflow-y: scroll;
+            background: white;
+            border-radius: 6px;
+        }
+
+        .item {
+            border-bottom: 1px solid #ddd;
+            padding: 10px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>楽曲検索</h1>
+
+    <div class="controls">
+        <input type="text" id="searchInput" placeholder="検索ワードを入力" oninput="showSuggest()">
+        <div id="suggestBox"></div>
+
+        <button onclick="search()">検索</button>
+        <button onclick="clearResult()">クリア</button>
+    </div>
+
+    <div id="resultBox">読み込み中...</div>
+
+    <script>
+        const apiUrl = "https://script.google.com/macros/s/AKfycbwgOxvMKnE5ZQUCLG2A_8HFL_9JU2UWdxmpNsUxt1nNJaM8aFjAfSSTZUX-e82FYgtb/exec";
+        let items = [];
+        let titles = []; // ✅ 曲名だけの配列
+
+        fetch(apiUrl)
+            .then(res => res.json())
+            .then(data => {
+                items = data;
+                titles = items.map(row => row["曲名"]); // ✅ 曲名だけ抽出
+                document.getElementById("resultBox").innerHTML = "検索ワードを入力して検索してください。";
+            });
+
+        /* ✅ サジェスト表示 */
+        function showSuggest() {
+            const keyword = document.getElementById("searchInput").value.trim();
+            const suggestBox = document.getElementById("suggestBox");
+
+            if (!keyword) {
+                suggestBox.style.display = "none";
+                return;
+            }
+
+            const suggestions = titles.filter(title =>
+                title && title.startsWith(keyword)
+            );
+
+            if (suggestions.length === 0) {
+                suggestBox.style.display = "none";
+                return;
+            }
+
+            suggestBox.innerHTML = suggestions
+                .map(s => `<div class="suggest-item" onclick="selectSuggest('${s}')">${s}</div>`)
+                .join("");
+
+            suggestBox.style.display = "block";
+        }
+
+        /* ✅ サジェスト選択 */
+        function selectSuggest(text) {
+            document.getElementById("searchInput").value = text;
+            document.getElementById("suggestBox").style.display = "none";
+        }
+
+        /* ✅ 検索処理 */
+        function search() {
+            const keyword = document.getElementById("searchInput").value.trim();
+            const resultBox = document.getElementById("resultBox");
+            resultBox.innerHTML = "";
+
+            if (!keyword) {
+                resultBox.innerHTML = "検索ワードを入力してください。";
+                return;
+            }
+
+            const filtered = items.filter(row =>
+                Object.values(row).some(v => v && v.toString().includes(keyword))
+            );
+
+            if (filtered.length === 0) {
+                resultBox.innerHTML = "該当するデータがありませんでした。";
+                return;
+            }
+
+            filtered.forEach(row => {
+                const div = document.createElement("div");
+                div.className = "item";
+                div.innerHTML = `
+                    <strong>${row["曲名"]}</strong><br>
+                    アーティスト名：${row["アーティスト名"]}<br>
+                    ジャンル：${row["ジャンル"]}<br>
+                    キー：${row["キー"]}<br>
+                    JASLAC：${row["JASLAC"]}
+                `;
+                resultBox.appendChild(div);
+            });
+        }
+
+        /* ✅ クリア処理 */
+        function clearResult() {
+            document.getElementById("resultBox").innerHTML = "";
+            document.getElementById("searchInput").value = "";
+            document.getElementById("suggestBox").style.display = "none";
+        }
+    </script>
+
+</body>
+</html>
