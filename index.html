@@ -7,14 +7,26 @@
 
     <style>
         body {
-            font-family: sans-serif;
+            font-family: "Hiragino Mincho ProN", "Yu Mincho", "MS PMincho", serif;
             padding: 15px;
-            background: #f5f5f5;
+            background-image: url("https://github.com/alto-Ptns/Music-Search/blob/main/bg.jpg?raw=true");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        .title-image {
+            width: 100%;        /* 画像の横幅（好みで調整） */
+            max-width: 350px;  /* 大きすぎないように制限 */
+            display: block;
+            margin: 0 auto 10px auto; /* 中央寄せ＋下に余白 */
         }
 
         h1 {
             font-size: 1.4rem;
             text-align: center;
+            color: white;
+            text-shadow: 0 0 8px rgba(0,0,0,0.6);
         }
 
         .controls {
@@ -53,7 +65,7 @@
 
         /* ✅ サジェストボックス */
         #suggestBox {
-            background: white;
+            background: rgba(255, 255, 255, 0.85);
             border: 1px solid #ccc;
             border-radius: 6px;
             max-height: 150px;
@@ -80,8 +92,9 @@
             border: 2px solid #333;
             padding: 10px;
             overflow-y: scroll;
-            background: white;
+            background: rgba(255, 255, 255, 0.85);
             border-radius: 6px;
+            box-sizing: border-box;
         }
 
         .item {
@@ -91,6 +104,9 @@
     </style>
 </head>
 <body>
+    <img src="https://github.com/alto-Ptns/Music-Search/blob/main/key.jpg?raw=true"
+     alt="title image"
+     class="title-image">
 
     <h1>楽曲検索</h1>
 
