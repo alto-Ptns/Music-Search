@@ -25,7 +25,7 @@
         h1 {
             font-size: 1.4rem;
             text-align: center;
-            color: rgb(255, 255, 255);
+            color: white;
             text-shadow: 0 0 8px rgba(0,0,0,0.6);
         }
 
@@ -45,7 +45,7 @@
             box-sizing: border-box;
         }
 
-        /* 🌈 検索ボタン（パステルブルー） */
+        /* 🌈 検索ボタン */
         .search-btn {
             background: linear-gradient(45deg, #a2d2ff, #cdefff);
             color: #333;
@@ -63,7 +63,7 @@
             background: linear-gradient(45deg, #89c2ff, #bde0fe);
         }
 
-        /* 🌸 クリアボタン（パステルピンク） */
+        /* 🌸 クリアボタン */
         .clear-btn {
             background: linear-gradient(45deg, #ffc8dd, #ffe0f0);
             color: #333;
@@ -81,16 +81,11 @@
             background: linear-gradient(45deg, #ffafcc, #ffd6e0);
         }
 
-        /* ボタン共通のアニメーション */
-        .search-btn,
-        .clear-btn {
-        transition: transform 0.15s ease, box-shadow 0.2s ease;
-        }
-
+        /* ボタンアニメーション */
         .search-btn:active,
-        .clear-btn:active {
-        transform: scale(0.92); /* 押したときに少し縮む */
-        box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        .clear-btn:active,
+        .send-btn:active {
+            transform: scale(0.92);
         }
 
         /* サジェストボックス */
@@ -131,6 +126,19 @@
             border-bottom: 1px solid #ddd;
             padding: 10px 0;
         }
+
+        /* 🎀 送信ボタン */
+        .send-btn {
+            background: linear-gradient(45deg, #fbc2eb, #a6c1ee);
+            color: #333;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 6px;
+            transition: 0.2s;
+        }
     </style>
 </head>
 <body>
@@ -152,6 +160,8 @@
 
     <script>
         const apiUrl = "https://script.google.com/macros/s/AKfycbwgOxvMKnE5ZQUCLG2A_8HFL_9JU2UWdxmpNsUxt1nNJaM8aFjAfSSTZUX-e82FYgtb/exec";
+        const postUrl = "https://script.google.com/macros/s/AKfycbxo-V3PzIEpQN1R1wc7pUIH5k8lwsWZDLxuWSPMdDfcfuD4MMZepDwYj_6NMOA3af1G/exec";
+
         let items = [];
         let titles = [];
 
@@ -220,7 +230,10 @@
                     アーティスト名：${row["アーティスト名"]}<br>
                     ジャンル：${row["ジャンル"]}<br>
                     キー：${row["キー"]}<br>
-                    JASLAC：${row["JASLAC"]}
+                    JASLAC：${row["JASLAC"]}<br>
+                    <button class="send-btn" onclick='sendToSheet(${JSON.stringify(row)})'>
+                        この曲を送信
+                    </button>
                 `;
                 resultBox.appendChild(div);
             });
@@ -230,6 +243,17 @@
             document.getElementById("resultBox").innerHTML = "";
             document.getElementById("searchInput").value = "";
             document.getElementById("suggestBox").style.display = "none";
+        }
+
+        function sendToSheet(rowData) {
+            fetch(postUrl, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(rowData)
+            })
+            .then(res => res.text())
+            .then(msg => alert(msg))
+            .catch(err => alert("送信エラー: " + err));
         }
     </script>
 
